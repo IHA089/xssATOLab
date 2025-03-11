@@ -220,7 +220,6 @@ def join():
 @xssATO.route("/dashboard.html")
 @login_required
 def dashboard():
-    print(session['user'])
     if 'user' not in session:
         return redirect(url_for('login_html'))
     admin_list=['admin', 'administrator']
