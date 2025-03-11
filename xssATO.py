@@ -4,7 +4,7 @@ from functools import wraps
 import sqlite3
 import hashlib
 import random
-import os, String, requests
+import os, string, requests
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
