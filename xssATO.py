@@ -17,6 +17,13 @@ lab_name = "xssATOLab"
 xssATO = Flask(__name__)
 xssATO.secret_key = "vulnerable_lab_by_IHA089"
 
+flag_data = {}
+
+def generate_flag(length=10):
+    charset = string.ascii_letters + string.digits
+    random_string = ''.join(random.choices(charset, k=length))
+    return random_string
+
 def create_database():
     db_path = os.path.join(os.getcwd(), lab_type, lab_name, 'users.db')
     conn = sqlite3.connect(db_path)
@@ -231,11 +238,14 @@ def join():
 def dashboard():
     if 'user' not in session:
         return redirect(url_for('login_html'))
-    admin_list=['admin', 'administrator']
-    if session.get('user') in admin_list:
-        return render_template('admin-dashboard.html', user=session.get('user'))
 
-    return render_template('dashboard.html', user=session.get('user'))
+    username = session.get('user')
+    if username not in flag_data:
+        flag_data[username] = generate_flag()
+
+    flag_code = flag_data[username]
+
+    return render_template('dashboard.html', user=session.get('user'), flag=flag_code)
 
 @xssATO.route('/logout.html')
 def logout():
