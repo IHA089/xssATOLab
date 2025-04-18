@@ -4,10 +4,12 @@ from functools import wraps
 import sqlite3
 import hashlib
 import random
-import os, string, requests
+import os, string, requests, urllib3
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 lab_type = "AccountTakeover"
 lab_name = "xssATOLab"
@@ -84,6 +86,10 @@ def acceptable_html():
 def term_html():
     return render_template('term.html', user=session.get('user'))
 
+@xssATO.route('/check.html')
+def check_html():
+    return render_template('check.html', user=session.get('user'))
+    
 @xssATO.route('/privacy.html')
 def privacy_html():
     return render_template('privacy.html', user=session.get('user'))
@@ -138,7 +144,7 @@ def resend():
                     "bodycontent":bdcontent
                 }
         try:
-            k = requests.post(mail_server, json = payload)
+            k = requests.post(mail_server, json = payload, verify=False)
         except:
             return jsonify({"error": "Mail server is not responding"}), 500
         error_message="code sent"
@@ -173,7 +179,10 @@ def login():
     error = request.args.get('error') if request.args.get('error') else None
     return render_template('login.html', error=error)
 
-
+@xssATO.route('/check', methods=['POST'])
+def check():
+    session_code = request.form.get('sessioncode')
+    
 @xssATO.route('/join', methods=['POST'])
 def join():
     email = request.form.get('email')
@@ -206,7 +215,7 @@ def join():
                         "bodycontent":bdcontent
                     }
             try:
-                k = requests.post(mail_server, json = payload)
+                k = requests.post(mail_server, json = payload, verify=False)
             except:
                 return jsonify({"error": "Mail server is not responding"}), 500
 
